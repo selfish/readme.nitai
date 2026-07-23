@@ -55,7 +55,6 @@ jobs:
           name: readme-nit-ai-${{ env.REVIEW_SHA }}
           path: |
             dist/
-            artifacts/
             test-results/
           if-no-files-found: error
           retention-days: 14

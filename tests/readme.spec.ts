@@ -1,6 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
 
 const viewports = [
   { name: "narrow", width: 320, height: 720 },
@@ -27,6 +26,42 @@ test("exposes the leadership README as semantic content", async ({ page }) => {
   );
 });
 
+test("keeps the unapproved draft out of search indexes", async ({ page }) => {
+  await page.goto("/");
+  await expect(
+    page.getByText("Draft for discussion — not published"),
+  ).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "noindex, nofollow",
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://readme.nit.ai/",
+  );
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+    "content",
+    "https://readme.nit.ai/",
+  );
+});
+
+test("keeps every proposed identity link explicit and reviewable", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const expectedLinks = [
+    ["Personal site", "https://nit.ai"],
+    ["GitHub", "https://github.com/selfish"],
+    ["LinkedIn", "https://www.linkedin.com/in/nitaijperez"],
+  ] as const;
+
+  for (const [label, href] of expectedLinks) {
+    const link = page.getByRole("link", { name: label });
+    await expect(link).toHaveAttribute("href", href);
+    await expect(link).toHaveAttribute("rel", "me noreferrer");
+  }
+});
+
 for (const viewport of viewports) {
   test(`has no horizontal overflow at ${viewport.name}`, async ({ page }) => {
     await page.setViewportSize({
@@ -49,8 +84,7 @@ for (const viewport of viewports) {
       height: viewport.height,
     });
     await page.goto("/");
-    await mkdir("artifacts", { recursive: true });
-    const screenshotPath = `artifacts/readme-${viewport.name}.png`;
+    const screenshotPath = testInfo.outputPath(`readme-${viewport.name}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: true });
     await testInfo.attach(`readme-${viewport.name}`, {
       path: screenshotPath,
@@ -74,6 +108,9 @@ test("supports keyboard navigation and reduced motion", async ({ page }) => {
   await expect(
     page.getByRole("link", { name: "Skip to content" }),
   ).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("main")).toBeFocused();
+  await expect(page).toHaveURL(/#main$/);
   const behavior = await page.evaluate(
     () => getComputedStyle(document.documentElement).scrollBehavior,
   );

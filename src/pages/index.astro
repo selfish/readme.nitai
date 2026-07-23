@@ -4,6 +4,7 @@ import "../styles/global.css";
 
 const description =
   "A working README from Nitai Perez about leadership, ownership, communication, and building engineering organizations that can think for themselves.";
+const canonicalUrl = new URL("/", Astro.site);
 ---
 
 <!doctype html>
@@ -12,12 +13,13 @@ const description =
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#f1eee7" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={`README — ${profile.name}`} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content="https://readme.nit.ai/" />
-    <link rel="canonical" href="https://readme.nit.ai/" />
+    <meta property="og:url" content={canonicalUrl} />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>README — {profile.name}</title>
   </head>
@@ -32,7 +34,7 @@ const description =
       </nav>
     </header>
 
-    <main id="main">
+    <main id="main" tabindex="-1">
       <article id="top">
         <header class="hero">
           <p class="eyebrow">{profile.label}</p>

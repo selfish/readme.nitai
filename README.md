@@ -13,7 +13,7 @@ Requires Node.js 24 or newer.
 ```sh
 npm ci
 npm run build
-npx playwright install chromium
+npx playwright install --with-deps chromium
 npm test
 ```
 
