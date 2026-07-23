@@ -89,5 +89,5 @@ export const sections = [
 export const links = [
   { label: "Personal site", href: "https://nit.ai" },
   { label: "GitHub", href: "https://github.com/selfish" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/nitai-perez" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/nitaijperez" },
 ];
