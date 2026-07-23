@@ -1,9 +1,16 @@
 ---
-import { links, profile, sections } from "../content";
+import {
+  links,
+  openQuestions,
+  principles,
+  profile,
+  systemLoop,
+  workingContract,
+} from "../content";
 import "../styles/global.css";
 
 const description =
-  "A working README from Nitai Perez about leadership, ownership, communication, and building engineering organizations that can think for themselves.";
+  "A working README from Nitai Perez about leadership, engineering judgment, ownership, and organizations that can think for themselves.";
 const canonicalUrl = new URL("/", Astro.site);
 ---
 
@@ -14,7 +21,7 @@ const canonicalUrl = new URL("/", Astro.site);
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="theme-color" content="#f1eee7" />
+    <meta name="theme-color" content="#f3efe6" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={`README — ${profile.name}`} />
     <meta property="og:description" content={description} />
@@ -25,55 +32,163 @@ const canonicalUrl = new URL("/", Astro.site);
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+
     <header class="site-header" aria-label="Page header">
-      <a class="wordmark" href="#top" aria-label="Back to the top">NP</a>
+      <a class="identity" href="#top" aria-label="Nitai Perez — back to the top">
+        <span>{profile.name}</span>
+        <span>{profile.label}</span>
+      </a>
       <nav aria-label="On this page">
-        <a href="#expect">From me</a>
-        <a href="#ask">From you</a>
-        <a href="#defaults">Defaults</a>
+        <a href="#thinking">Thinking</a>
+        <a href="#contract">Working contract</a>
+        <a href="#questions">Open questions</a>
       </nav>
+      <p class="edition" aria-label={`Draft edition ${profile.edition}`}>Draft / {profile.edition}</p>
     </header>
 
     <main id="main" tabindex="-1">
       <article id="top">
         <header class="hero">
-          <p class="eyebrow">{profile.label}</p>
-          <p class="draft-status">{profile.status}</p>
-          <h1>{profile.name}</h1>
-          <p class="thesis">{profile.thesis}</p>
-          <p class="introduction">{profile.introduction}</p>
-          <a class="read-on" href="#job">Read the working notes <span aria-hidden="true">↓</span></a>
+          <div class="hero-copy">
+            <div class="hero-meta">
+              <p>{profile.label}</p>
+              <p class="draft-status">{profile.status}</p>
+            </div>
+            <h1>{profile.name}</h1>
+            <p class="thesis">{profile.thesis}</p>
+            <p class="introduction">{profile.introduction}</p>
+          </div>
+
+          <aside class="operating-loop" aria-labelledby="operating-loop-title">
+            <p class="aside-label" id="operating-loop-title">The shortest useful loop</p>
+            <ol>
+              {
+                systemLoop.map((step, index) => (
+                  <li>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{step}</strong>
+                  </li>
+                ))
+              }
+            </ol>
+            <p class="loop-note">
+              Put context near authority. Put decisions near information. Make feedback cheap enough to arrive.
+            </p>
+          </aside>
         </header>
 
-        <div class="sections">
-          {
-            sections.map((section, index) => (
-              <section id={section.id} aria-labelledby={`${section.id}-title`}>
-                <div class="section-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</div>
-                <div class="section-body">
-                  <h2 id={`${section.id}-title`}>{section.title}</h2>
-                  {"note" in section && <p class="section-note">{section.note}</p>}
-                  {"paragraphs" in section && section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-                  {"items" in section && (
-                    <dl>
-                      {section.items.map((item) => (
-                        <div>
-                          <dt>{item.term}</dt>
-                          <dd>{item.detail}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  )}
+        <div class="reading-layout">
+          <aside class="contents" aria-label="Contents">
+            <p class="aside-label">Contents</p>
+            <ol>
+              {
+                principles.map((principle, index) => (
+                  <li>
+                    <a href={`#${principle.id}`}>
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      {principle.title}
+                    </a>
+                  </li>
+                ))
+              }
+            </ol>
+            <p class="contents-note">Provisional language. Real principles should survive real examples.</p>
+          </aside>
+
+          <div class="document">
+            <section class="thinking" id="thinking" aria-labelledby="thinking-title">
+              <header class="section-heading">
+                <p class="section-label">01 / Worldview</p>
+                <div>
+                  <h2 id="thinking-title">How I see the system</h2>
+                  <p>
+                    Five working propositions. Not values for a wall: claims that should eventually be testable against decisions, systems, and behavior.
+                  </p>
                 </div>
-              </section>
-            ))
-          }
+              </header>
+
+              <div class="principles">
+                {
+                  principles.map((principle, index) => (
+                    <article class="principle" id={principle.id} aria-labelledby={`${principle.id}-title`}>
+                      <header>
+                        <p class="principle-index">{String(index + 1).padStart(2, "0")}</p>
+                        <div>
+                          <p class="kicker">{principle.kicker}</p>
+                          <h3 id={`${principle.id}-title`}>{principle.title}</h3>
+                        </div>
+                      </header>
+                      <div class="principle-copy">
+                        <p class="lede">{principle.lede}</p>
+                        <div class="prose-columns">
+                          {principle.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+                        </div>
+                        <dl class="notes">
+                          {principle.notes.map((note) => (
+                            <div>
+                              <dt>{note.label}</dt>
+                              <dd>{note.detail}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </div>
+                    </article>
+                  ))
+                }
+              </div>
+            </section>
+
+            <section class="contract" id="contract" aria-labelledby="contract-title">
+              <header class="section-heading">
+                <p class="section-label">02 / Interface</p>
+                <div>
+                  <h2 id="contract-title">A working contract</h2>
+                  <p>Defaults for the exchange, not promises that context can never override.</p>
+                </div>
+              </header>
+
+              <div class="contract-grid" role="table" aria-label="Working contract between Nitai and teammates">
+                <div class="contract-header" role="row">
+                  <span role="columnheader">Situation</span>
+                  <span role="columnheader">From me</span>
+                  <span role="columnheader">From you</span>
+                </div>
+                {
+                  workingContract.map((item) => (
+                    <div class="contract-row" role="row">
+                      <strong role="cell">{item.situation}</strong>
+                      <span role="cell">{item.fromMe}</span>
+                      <span role="cell">{item.fromYou}</span>
+                    </div>
+                  ))
+                }
+              </div>
+            </section>
+
+            <section class="questions" id="questions" aria-labelledby="questions-title">
+              <header class="section-heading">
+                <p class="section-label">03 / Unfinished</p>
+                <div>
+                  <h2 id="questions-title">Questions the real version must answer</h2>
+                  <p>
+                    Depth will come from specifics: decisions, trade-offs, failures, changed minds, and the examples that make a principle expensive enough to mean something.
+                  </p>
+                </div>
+              </header>
+              <ol>
+                {openQuestions.map((question, index) => <li><span>{index + 1}</span>{question}</li>)}
+              </ol>
+            </section>
+          </div>
         </div>
       </article>
     </main>
 
     <footer>
-      <p class="footer-note">This page is a draft. The useful version will change when reality proves it wrong.</p>
+      <div>
+        <p class="footer-title">README / {profile.name}</p>
+        <p class="footer-note">A draft operating model. Useful only if reality is allowed to edit it.</p>
+      </div>
       <nav aria-label="Elsewhere">
         {
           links.map((link) => (

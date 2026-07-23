@@ -2,13 +2,15 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const viewports = [
-  { name: "narrow", width: 320, height: 720 },
+  { name: "narrow", width: 320, height: 568 },
   { name: "mobile", width: 390, height: 844 },
   { name: "tablet", width: 768, height: 900 },
   { name: "desktop", width: 1440, height: 1000 },
 ];
 
-test("exposes the leadership README as semantic content", async ({ page }) => {
+test("exposes a substantive leadership and engineering README", async ({
+  page,
+}) => {
   await page.goto("/");
   await expect(page).toHaveTitle("README — Nitai Perez");
   await expect(
@@ -19,11 +21,45 @@ test("exposes the leadership README as semantic content", async ({ page }) => {
       "I build engineering organizations that can think for themselves.",
     ),
   ).toBeVisible();
-  await expect(page.getByRole("heading", { level: 2 })).toHaveCount(4);
-  await expect(page.getByRole("link", { name: "GitHub" })).toHaveAttribute(
-    "href",
-    "https://github.com/selfish",
-  );
+  await expect(page.getByRole("heading", { level: 2 })).toHaveCount(3);
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(5);
+  await expect(page.locator(".principle")).toHaveCount(5);
+  await expect(page.locator(".principle .prose-columns p")).toHaveCount(10);
+  await expect(page.locator(".contract-row")).toHaveCount(5);
+  await expect(page.locator(".questions li")).toHaveCount(5);
+});
+
+test("preserves Georgia while retiring the generic initials mark", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator(".wordmark")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "Nitai Perez — back to the top" }),
+  ).toContainText("Nitai Perez");
+  const thesisFont = await page
+    .locator(".thesis")
+    .evaluate((element) => getComputedStyle(element).fontFamily);
+  expect(thesisFont).toContain("Georgia");
+});
+
+test("uses a materially denser desktop opening", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/");
+  const geometry = await page.evaluate(() => {
+    const hero = document.querySelector<HTMLElement>(".hero")!;
+    const thinking = document.querySelector<HTMLElement>("#thinking")!;
+    const heroRect = hero.getBoundingClientRect();
+    const thinkingRect = thinking.getBoundingClientRect();
+    return {
+      heroHeight: heroRect.height,
+      heroBottom: heroRect.bottom,
+      thinkingTop: thinkingRect.top,
+    };
+  });
+  expect(geometry.heroHeight).toBeLessThan(760);
+  expect(geometry.heroBottom).toBeLessThan(900);
+  expect(geometry.thinkingTop).toBeLessThan(900);
 });
 
 test("keeps the unapproved draft out of search indexes", async ({ page }) => {
