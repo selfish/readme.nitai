@@ -1,0 +1,84 @@
+---
+import { links, profile, sections } from "../content";
+import "../styles/global.css";
+
+const description =
+  "A working README from Nitai Perez about leadership, ownership, communication, and building engineering organizations that can think for themselves.";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f1eee7" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`README — ${profile.name}`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content="https://readme.nit.ai/" />
+    <link rel="canonical" href="https://readme.nit.ai/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>README — {profile.name}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" aria-label="Page header">
+      <a class="wordmark" href="#top" aria-label="Back to the top">NP</a>
+      <nav aria-label="On this page">
+        <a href="#expect">From me</a>
+        <a href="#ask">From you</a>
+        <a href="#defaults">Defaults</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <article id="top">
+        <header class="hero">
+          <p class="eyebrow">{profile.label}</p>
+          <p class="draft-status">{profile.status}</p>
+          <h1>{profile.name}</h1>
+          <p class="thesis">{profile.thesis}</p>
+          <p class="introduction">{profile.introduction}</p>
+          <a class="read-on" href="#job">Read the working notes <span aria-hidden="true">↓</span></a>
+        </header>
+
+        <div class="sections">
+          {
+            sections.map((section, index) => (
+              <section id={section.id} aria-labelledby={`${section.id}-title`}>
+                <div class="section-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</div>
+                <div class="section-body">
+                  <h2 id={`${section.id}-title`}>{section.title}</h2>
+                  {"note" in section && <p class="section-note">{section.note}</p>}
+                  {"paragraphs" in section && section.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+                  {"items" in section && (
+                    <dl>
+                      {section.items.map((item) => (
+                        <div>
+                          <dt>{item.term}</dt>
+                          <dd>{item.detail}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                </div>
+              </section>
+            ))
+          }
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <p class="footer-note">This page is a draft. The useful version will change when reality proves it wrong.</p>
+      <nav aria-label="Elsewhere">
+        {
+          links.map((link) => (
+            <a href={link.href} rel="me noreferrer">{link.label}<span class="external" aria-hidden="true">↗</span></a>
+          ))
+        }
+      </nav>
+    </footer>
+  </body>
+</html>
