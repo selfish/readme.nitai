@@ -9,8 +9,9 @@ import {
 } from "../content";
 import "../styles/global.css";
 
+const title = "Unpublished draft — Nitai Perez README";
 const description =
-  "A working README from Nitai Perez about leadership, engineering judgment, ownership, and organizations that can think for themselves.";
+  "An unpublished, approval-gated design and copy draft for Nitai Perez’s working README.";
 const canonicalUrl = new URL("/", Astro.site);
 ---
 
@@ -23,12 +24,12 @@ const canonicalUrl = new URL("/", Astro.site);
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#f3efe6" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={`README — ${profile.name}`} />
+    <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <title>README — {profile.name}</title>
+    <title>{title}</title>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -39,9 +40,9 @@ const canonicalUrl = new URL("/", Astro.site);
         <span>{profile.label}</span>
       </a>
       <nav aria-label="On this page">
-        <a href="#thinking">Thinking</a>
-        <a href="#contract">Working contract</a>
-        <a href="#questions">Open questions</a>
+        <a href="#thinking">Starting points</a>
+        <a href="#contract">Contract questions</a>
+        <a href="#questions">Owner questions</a>
       </nav>
       <p class="edition" aria-label={`Draft edition ${profile.edition}`}>Draft / {profile.edition}</p>
     </header>
@@ -60,8 +61,8 @@ const canonicalUrl = new URL("/", Astro.site);
           </div>
 
           <aside class="operating-loop" aria-labelledby="operating-loop-title">
-            <p class="aside-label" id="operating-loop-title">The shortest useful loop</p>
-            <ol>
+            <p class="aside-label" id="operating-loop-title">The approval path</p>
+            <ol role="list">
               {
                 systemLoop.map((step, index) => (
                   <li>
@@ -72,7 +73,7 @@ const canonicalUrl = new URL("/", Astro.site);
               }
             </ol>
             <p class="loop-note">
-              Put context near authority. Put decisions near information. Make feedback cheap enough to arrive.
+              Source first. Approval second. Publication remains a separate decision.
             </p>
           </aside>
         </header>
@@ -80,7 +81,7 @@ const canonicalUrl = new URL("/", Astro.site);
         <div class="reading-layout">
           <aside class="contents" aria-label="Contents">
             <p class="aside-label">Contents</p>
-            <ol>
+            <ol role="list">
               {
                 principles.map((principle, index) => (
                   <li>
@@ -92,17 +93,17 @@ const canonicalUrl = new URL("/", Astro.site);
                 ))
               }
             </ol>
-            <p class="contents-note">Provisional language. Real principles should survive real examples.</p>
+            <p class="contents-note">Three source-backed phrases. The explanations are questions, not Nitai’s claims.</p>
           </aside>
 
           <div class="document">
             <section class="thinking" id="thinking" aria-labelledby="thinking-title">
               <header class="section-heading">
-                <p class="section-label">01 / Worldview</p>
+                <p class="section-label">01 / Evidence</p>
                 <div>
-                  <h2 id="thinking-title">How I see the system</h2>
+                  <h2 id="thinking-title">Three starting points</h2>
                   <p>
-                    Five working propositions. Not values for a wall: claims that should eventually be testable against decisions, systems, and behavior.
+                    Public wording can establish the premise. Only Nitai’s answers can turn it into a working model.
                   </p>
                 </div>
               </header>
@@ -140,18 +141,18 @@ const canonicalUrl = new URL("/", Astro.site);
 
             <section class="contract" id="contract" aria-labelledby="contract-title">
               <header class="section-heading">
-                <p class="section-label">02 / Interface</p>
+                <p class="section-label">02 / Interface draft</p>
                 <div>
-                  <h2 id="contract-title">A working contract</h2>
-                  <p>Defaults for the exchange, not promises that context can never override.</p>
+                  <h2 id="contract-title">Questions, not a contract</h2>
+                  <p>This matrix tests the information architecture without inventing promises or expectations.</p>
                 </div>
               </header>
 
-              <div class="contract-grid" role="table" aria-label="Working contract between Nitai and teammates">
+              <div class="contract-grid" role="table" aria-label="Questions for a future working contract">
                 <div class="contract-header" role="row">
                   <span role="columnheader">Situation</span>
-                  <span role="columnheader">From me</span>
-                  <span role="columnheader">From you</span>
+                  <span role="columnheader">Questions for Nitai</span>
+                  <span role="columnheader">Questions for teammates</span>
                 </div>
                 {
                   workingContract.map((item) => (
@@ -167,15 +168,15 @@ const canonicalUrl = new URL("/", Astro.site);
 
             <section class="questions" id="questions" aria-labelledby="questions-title">
               <header class="section-heading">
-                <p class="section-label">03 / Unfinished</p>
+                <p class="section-label">03 / Owner input</p>
                 <div>
-                  <h2 id="questions-title">Questions the real version must answer</h2>
+                  <h2 id="questions-title">What the real version must answer</h2>
                   <p>
-                    Depth will come from specifics: decisions, trade-offs, failures, changed minds, and the examples that make a principle expensive enough to mean something.
+                    These are the factual gaps recorded in issue #1. They remain unanswered unless Nitai says otherwise.
                   </p>
                 </div>
               </header>
-              <ol>
+              <ol role="list">
                 {openQuestions.map((question, index) => <li><span>{index + 1}</span>{question}</li>)}
               </ol>
             </section>
@@ -187,12 +188,12 @@ const canonicalUrl = new URL("/", Astro.site);
     <footer>
       <div>
         <p class="footer-title">README / {profile.name}</p>
-        <p class="footer-note">A draft operating model. Useful only if reality is allowed to edit it.</p>
+        <p class="footer-note">An unpublished discussion artifact—not Nitai’s working model until he approves it.</p>
       </div>
       <nav aria-label="Elsewhere">
         {
           links.map((link) => (
-            <a href={link.href} rel="me noreferrer">{link.label}<span class="external" aria-hidden="true">↗</span></a>
+            <a href={link.href} rel="noreferrer">{link.label}<span class="external" aria-hidden="true">↗</span></a>
           ))
         }
       </nav>

@@ -48,6 +48,11 @@ jobs:
       - name: Run browser, accessibility, and responsive checks
         run: npm test
 
+      - name: Reverify reviewed source tree
+        run: |
+          test "$(git rev-parse HEAD)" = "$REVIEW_SHA"
+          test -z "$(git status --short --untracked-files=no)"
+
       - name: Record exact reviewed commit
         run: printf 'commit=%s\n' "$(git rev-parse HEAD)" > dist/reviewed-commit.txt
 

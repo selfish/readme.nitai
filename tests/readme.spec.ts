@@ -31,11 +31,11 @@ const contrastRatio = (foreground: number[], background: number[]) => {
   return (lighter + 0.05) / (darker + 0.05);
 };
 
-test("exposes a substantive leadership and engineering README", async ({
+test("exposes a source-bounded leadership and engineering draft", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("README — Nitai Perez");
+  await expect(page).toHaveTitle("Unpublished draft — Nitai Perez README");
   await expect(
     page.getByRole("heading", { level: 1, name: "Nitai Perez" }),
   ).toBeVisible();
@@ -45,11 +45,30 @@ test("exposes a substantive leadership and engineering README", async ({
     ),
   ).toBeVisible();
   await expect(page.getByRole("heading", { level: 2 })).toHaveCount(3);
-  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(5);
-  await expect(page.locator(".principle")).toHaveCount(5);
-  await expect(page.locator(".principle .prose-columns p")).toHaveCount(10);
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(3);
+  await expect(page.locator(".principle")).toHaveCount(3);
+  await expect(page.locator(".principle .prose-columns p")).toHaveCount(6);
   await expect(page.locator(".contract-row")).toHaveCount(5);
-  await expect(page.locator(".questions li")).toHaveCount(5);
+  await expect(page.locator(".questions li")).toHaveCount(8);
+  await expect(
+    page.getByText("Running a team of leaders", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Ownership is the architecture; the software ships as a side effect.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+
+  const body = await page.locator("body").innerText();
+  for (const unapprovedClaim of [
+    "I care about",
+    "I think ownership",
+    "I want risks",
+    "I prefer small",
+  ]) {
+    expect(body).not.toContain(unapprovedClaim);
+  }
 });
 
 test("preserves Georgia while retiring the generic initials mark", async ({
@@ -129,9 +148,17 @@ test("keeps the unapproved draft out of search indexes", async ({ page }) => {
     "content",
     "https://readme.nit.ai/",
   );
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    "Unpublished draft — Nitai Perez README",
+  );
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /unpublished, approval-gated design and copy draft/i,
+  );
 });
 
-test("keeps every proposed identity link explicit and reviewable", async ({
+test("keeps proposed links reviewable without asserting identity approval", async ({
   page,
 }) => {
   await page.goto("/");
@@ -144,8 +171,16 @@ test("keeps every proposed identity link explicit and reviewable", async ({
   for (const [label, href] of expectedLinks) {
     const link = page.getByRole("link", { name: label });
     await expect(link).toHaveAttribute("href", href);
-    await expect(link).toHaveAttribute("rel", "me noreferrer");
+    await expect(link).toHaveAttribute("rel", "noreferrer");
   }
+});
+
+test("preserves ordered-list semantics after removing visual markers", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByRole("list")).toHaveCount(3);
+  await expect(page.locator('ol[role="list"]')).toHaveCount(3);
 });
 
 for (const viewport of viewports) {
@@ -184,14 +219,20 @@ for (const viewport of viewports) {
   });
 }
 
-test("keeps contract column headers available on mobile", async ({ page }) => {
+test("keeps question-matrix column headers available on mobile", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   const contract = page.getByRole("table", {
-    name: "Working contract between Nitai and teammates",
+    name: "Questions for a future working contract",
   });
   await expect(contract.getByRole("columnheader")).toHaveCount(3);
-  for (const heading of ["Situation", "From me", "From you"]) {
+  for (const heading of [
+    "Situation",
+    "Questions for Nitai",
+    "Questions for teammates",
+  ]) {
     await expect(
       contract.getByRole("columnheader", { name: heading }),
     ).toHaveCount(1);
