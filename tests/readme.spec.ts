@@ -8,6 +8,29 @@ const viewports = [
   { name: "desktop", width: 1440, height: 1000 },
 ];
 
+const relativeLuminance = ([red, green, blue]: number[]) => {
+  const channels = [red, green, blue].map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045
+      ? value / 12.92
+      : Math.pow((value + 0.055) / 1.055, 2.4);
+  });
+
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+};
+
+const contrastRatio = (foreground: number[], background: number[]) => {
+  const lighter = Math.max(
+    relativeLuminance(foreground),
+    relativeLuminance(background),
+  );
+  const darker = Math.min(
+    relativeLuminance(foreground),
+    relativeLuminance(background),
+  );
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
 test("exposes a substantive leadership and engineering README", async ({
   page,
 }) => {
@@ -41,6 +64,23 @@ test("preserves Georgia while retiring the generic initials mark", async ({
     .locator(".thesis")
     .evaluate((element) => getComputedStyle(element).fontFamily);
   expect(thesisFont).toContain("Georgia");
+});
+
+test("keeps small utility text at AA contrast", async ({ page }) => {
+  await page.goto("/");
+  const colors = await page.locator(".edition").evaluate((element) => {
+    const parseRgb = (value: string) =>
+      value.match(/\d+/g)!.slice(0, 3).map(Number);
+    const style = getComputedStyle(element);
+    return {
+      foreground: parseRgb(style.color),
+      background: parseRgb(getComputedStyle(document.body).backgroundColor),
+    };
+  });
+
+  expect(
+    contrastRatio(colors.foreground, colors.background),
+  ).toBeGreaterThanOrEqual(4.5);
 });
 
 test("uses a materially denser desktop opening", async ({ page }) => {
@@ -99,7 +139,9 @@ test("keeps every proposed identity link explicit and reviewable", async ({
 });
 
 for (const viewport of viewports) {
-  test(`has no horizontal overflow at ${viewport.name}`, async ({ page }) => {
+  test(`has no overflow or detectable accessibility violations at ${viewport.name}`, async ({
+    page,
+  }) => {
     await page.setViewportSize({
       width: viewport.width,
       height: viewport.height,
@@ -110,6 +152,9 @@ for (const viewport of viewports) {
       scrollWidth: document.documentElement.scrollWidth,
     }));
     expect(dimensions.scrollWidth).toBe(dimensions.clientWidth);
+
+    const accessibility = await new AxeBuilder({ page }).analyze();
+    expect(accessibility.violations).toEqual([]);
   });
 
   test(`captures the ${viewport.name} review surface`, async ({
@@ -129,12 +174,10 @@ for (const viewport of viewports) {
   });
 }
 
-test("has no automatically detectable accessibility violations", async ({
-  page,
-}) => {
+test("keeps contract column headers available on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  const results = await new AxeBuilder({ page }).analyze();
-  expect(results.violations).toEqual([]);
+  await expect(page.getByRole("columnheader")).toHaveCount(3);
 });
 
 test("supports keyboard navigation and reduced motion", async ({ page }) => {

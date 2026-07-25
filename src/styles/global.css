@@ -34,7 +34,7 @@
     --paper-deep: #e7e0d2;
     --ink: #191915;
     --soft-ink: #4c4a42;
-    --faint-ink: #747066;
+    --faint-ink: #706c62;
     --line: #c9c0b1;
     --line-strong: #8e877b;
     --accent: #8b392d;
@@ -675,7 +675,16 @@
     }
 
     .contract-header {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border: 0;
     }
 
     .contract-row {
