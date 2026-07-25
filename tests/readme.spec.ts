@@ -70,17 +70,27 @@ test("keeps small utility text at AA contrast", async ({ page }) => {
   await page.goto("/");
   const colors = await page.locator(".edition").evaluate((element) => {
     const parseRgb = (value: string) =>
-      value.match(/\d+/g)!.slice(0, 3).map(Number);
+      value.startsWith("#")
+        ? [...value.slice(1).matchAll(/.{2}/g)].map(([hex]) =>
+            Number.parseInt(hex, 16),
+          )
+        : value.match(/\d+/g)!.slice(0, 3).map(Number);
     const style = getComputedStyle(element);
+    const root = getComputedStyle(document.documentElement);
     return {
       foreground: parseRgb(style.color),
-      background: parseRgb(getComputedStyle(document.body).backgroundColor),
+      backgrounds: [
+        parseRgb(root.getPropertyValue("--paper").trim()),
+        parseRgb(root.getPropertyValue("--paper-grid").trim()),
+      ],
     };
   });
 
-  expect(
-    contrastRatio(colors.foreground, colors.background),
-  ).toBeGreaterThanOrEqual(4.5);
+  for (const background of colors.backgrounds) {
+    expect(contrastRatio(colors.foreground, background)).toBeGreaterThanOrEqual(
+      4.5,
+    );
+  }
 });
 
 test("uses a materially denser desktop opening", async ({ page }) => {
@@ -177,7 +187,15 @@ for (const viewport of viewports) {
 test("keeps contract column headers available on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  await expect(page.getByRole("columnheader")).toHaveCount(3);
+  const contract = page.getByRole("table", {
+    name: "Working contract between Nitai and teammates",
+  });
+  await expect(contract.getByRole("columnheader")).toHaveCount(3);
+  for (const heading of ["Situation", "From me", "From you"]) {
+    await expect(
+      contract.getByRole("columnheader", { name: heading }),
+    ).toHaveCount(1);
+  }
 });
 
 test("supports keyboard navigation and reduced motion", async ({ page }) => {

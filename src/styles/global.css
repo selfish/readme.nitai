@@ -31,10 +31,11 @@
 @layer base {
   :root {
     --paper: #f3efe6;
+    --paper-grid: #eeeae1;
     --paper-deep: #e7e0d2;
     --ink: #191915;
     --soft-ink: #4c4a42;
-    --faint-ink: #706c62;
+    --faint-ink: #6d695f;
     --line: #c9c0b1;
     --line-strong: #8e877b;
     --accent: #8b392d;
@@ -52,7 +53,7 @@
     background-color: var(--paper);
     background-image: linear-gradient(
       to right,
-      rgb(25 25 21 / 0.025) 1px,
+      var(--paper-grid) 1px,
       transparent 1px
     );
     background-size: min(8.333vw, 7.5rem) 100%;
