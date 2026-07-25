@@ -1,6 +1,6 @@
 # readme.nit.ai
 
-A public working README for Nitai Perez: how I think about engineering organizations, how I work as a group leader, and what teammates can expect from me.
+An approval-gated draft for a future public working README for Nitai Perez. The current page tests the design and information structure with three source-backed phrases; it does not yet describe Nitai’s values, practices, scope, or promises.
 
 ## Status
 

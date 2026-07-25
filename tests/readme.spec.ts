@@ -237,6 +237,19 @@ test("keeps question-matrix column headers available on mobile", async ({
       contract.getByRole("columnheader", { name: heading }),
     ).toHaveCount(1);
   }
+
+  const visibleLabels = await page
+    .locator(".contract-row")
+    .first()
+    .evaluate((row) =>
+      [...row.querySelectorAll("span")].map((cell) =>
+        getComputedStyle(cell, "::before").content.replaceAll('"', ""),
+      ),
+    );
+  expect(visibleLabels).toEqual([
+    "Questions for Nitai",
+    "Questions for teammates",
+  ]);
 });
 
 test("supports keyboard navigation and reduced motion", async ({ page }) => {
