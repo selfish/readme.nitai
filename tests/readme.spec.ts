@@ -252,7 +252,133 @@ test("keeps question-matrix column headers available on mobile", async ({
   ]);
 });
 
-test("supports keyboard navigation and reduced motion", async ({ page }) => {
+for (const viewport of [
+  { name: "narrow", width: 320, height: 568 },
+  { name: "tablet", width: 768, height: 900 },
+  { name: "desktop", width: 1440, height: 1000 },
+]) {
+  test(`keeps every ${viewport.name} link in the tab order with visible focus`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height,
+    });
+    await page.goto("/");
+
+    const expectedTargets = [
+      "#main",
+      "#top",
+      "#thinking",
+      "#contract",
+      "#questions",
+      ...(viewport.name === "narrow"
+        ? []
+        : ["#thinking-organizations", "#leaders", "#ownership"]),
+      "https://nit.ai",
+      "https://github.com/selfish",
+      "https://www.linkedin.com/in/nitaijperez",
+    ];
+    const expectedHrefs = expectedTargets.map(
+      (target) => new URL(target, page.url()).href,
+    );
+    const focusedHrefs = [];
+
+    for (const expectedHref of expectedHrefs) {
+      await page.keyboard.press("Tab");
+      const focused = page.locator(":focus");
+      await expect(focused).toBeVisible();
+      await expect(focused).toBeInViewport();
+      await expect(focused).toHaveAttribute("href");
+
+      const focusEvidence = await focused.evaluate((element) => {
+        const parseRgb = (value: string) =>
+          value.startsWith("#")
+            ? [...value.slice(1).matchAll(/.{2}/g)].map(([hex]) =>
+                Number.parseInt(hex, 16),
+              )
+            : value.match(/\d+/g)!.slice(0, 3).map(Number);
+        const parseColor = (value: string) => {
+          const channels = value.match(/[\d.]+/g)!.map(Number);
+          return {
+            alpha: value.startsWith("rgba") ? channels[3] : 1,
+            rgb: channels.slice(0, 3),
+          };
+        };
+        const style = getComputedStyle(element);
+        const root = getComputedStyle(document.documentElement);
+        const rectangle = element.getBoundingClientRect();
+        const outlineColor = parseColor(style.outlineColor);
+        let effectiveOpacity = 1;
+        for (
+          let ancestor: Element | null = element;
+          ancestor;
+          ancestor = ancestor.parentElement
+        ) {
+          effectiveOpacity *= Number.parseFloat(
+            getComputedStyle(ancestor).opacity,
+          );
+        }
+        return {
+          backgrounds: [
+            parseRgb(root.getPropertyValue("--paper").trim()),
+            parseRgb(root.getPropertyValue("--paper-grid").trim()),
+          ],
+          effectiveOpacity,
+          href: (element as HTMLAnchorElement).href,
+          outlineAlpha: outlineColor.alpha,
+          outlineColor: outlineColor.rgb,
+          outlineOffset: Number.parseFloat(style.outlineOffset),
+          outlineStyle: style.outlineStyle,
+          outlineWidth: Number.parseFloat(style.outlineWidth),
+          rectangle: {
+            bottom: rectangle.bottom,
+            left: rectangle.left,
+            right: rectangle.right,
+            top: rectangle.top,
+          },
+          viewport: {
+            height: window.innerHeight,
+            width: window.innerWidth,
+          },
+        };
+      });
+
+      expect(focusEvidence.href).toBe(expectedHref);
+      expect(focusEvidence.outlineStyle).not.toBe("none");
+      expect(focusEvidence.outlineWidth).toBeGreaterThanOrEqual(2);
+      expect(focusEvidence.outlineAlpha).toBe(1);
+      expect(focusEvidence.effectiveOpacity).toBe(1);
+      for (const background of focusEvidence.backgrounds) {
+        expect(
+          contrastRatio(focusEvidence.outlineColor, background),
+        ).toBeGreaterThanOrEqual(3);
+      }
+
+      const outlineExtent = Math.max(
+        0,
+        focusEvidence.outlineWidth + focusEvidence.outlineOffset,
+      );
+      expect(
+        focusEvidence.rectangle.left - outlineExtent,
+      ).toBeGreaterThanOrEqual(0);
+      expect(focusEvidence.rectangle.right + outlineExtent).toBeLessThanOrEqual(
+        focusEvidence.viewport.width,
+      );
+      expect(
+        focusEvidence.rectangle.top - outlineExtent,
+      ).toBeGreaterThanOrEqual(0);
+      expect(
+        focusEvidence.rectangle.bottom + outlineExtent,
+      ).toBeLessThanOrEqual(focusEvidence.viewport.height);
+      focusedHrefs.push(focusEvidence.href);
+    }
+
+    expect(focusedHrefs).toEqual(expectedHrefs);
+  });
+}
+
+test("supports skip-link navigation and reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.keyboard.press("Tab");
