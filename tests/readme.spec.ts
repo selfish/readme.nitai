@@ -90,10 +90,14 @@ test("uses supported semantics for the draft edition label", async ({
 }) => {
   await page.goto("/");
   const edition = page.locator(".edition");
+  const visualLabel = edition.locator('span[aria-hidden="true"]');
+  const expandedLabel = edition.locator(".visually-hidden");
   await expect(edition).not.toHaveAttribute("aria-label");
-  await expect(edition.locator(".visually-hidden")).toHaveText(
-    "Draft edition ",
-  );
+  await expect(visualLabel).toHaveText("Draft / ");
+  await expect(expandedLabel).toHaveText("Draft edition ");
+  await expect(expandedLabel).toHaveCSS("position", "absolute");
+  await expect(expandedLabel).toHaveCSS("overflow", "hidden");
+  await expect(expandedLabel).toHaveCSS("width", "1px");
   await expect(edition).toContainText("0.3");
 });
 
