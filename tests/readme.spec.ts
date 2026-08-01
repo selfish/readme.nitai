@@ -85,6 +85,18 @@ test("preserves Georgia while retiring the generic initials mark", async ({
   expect(thesisFont).toContain("Georgia");
 });
 
+test("uses supported semantics for the draft edition label", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const edition = page.locator(".edition");
+  await expect(edition).not.toHaveAttribute("aria-label");
+  await expect(edition.locator(".visually-hidden")).toHaveText(
+    "Draft edition ",
+  );
+  await expect(edition).toContainText("0.3");
+});
+
 test("keeps small utility text at AA contrast", async ({ page }) => {
   await page.goto("/");
   const colors = await page.locator(".edition").evaluate((element) => {

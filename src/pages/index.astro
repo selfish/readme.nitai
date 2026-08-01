@@ -44,7 +44,9 @@ const canonicalUrl = new URL("/", Astro.site);
         <a href="#contract">Contract questions</a>
         <a href="#questions">Owner questions</a>
       </nav>
-      <p class="edition" aria-label={`Draft edition ${profile.edition}`}>Draft / {profile.edition}</p>
+      <p class="edition">
+        <span aria-hidden="true">Draft / </span><span class="visually-hidden">Draft edition </span>{profile.edition}
+      </p>
     </header>
 
     <main id="main" tabindex="-1">
