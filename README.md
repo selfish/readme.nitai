@@ -1,6 +1,6 @@
 # readme.nit.ai
 
-An approval-gated draft for a future public working README for Nitai Perez. The current page preserves the approved visual direction from PR #3 while testing edited copy distilled from two owner-supplied working documents. Those documents are source material, not page copy; the draft intentionally selects, compresses, and reorganizes their themes.
+An approval-gated draft for a future public working README for Nitai Perez. The current page preserves the approved visual direction from PR #3 while developing the breadth of two owner-supplied working documents into a personal-first narrative. Those documents are source material, not page copy; the draft keeps their ideas while reorganising them for the page.
 
 ## Status
 

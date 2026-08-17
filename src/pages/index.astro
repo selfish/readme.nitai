@@ -1,10 +1,10 @@
 ---
 import {
-  aboutMe,
   links,
   principles,
   profile,
-  systemLoop,
+  recurringThemes,
+  smallThings,
   workingContract,
 } from "../content";
 import "../styles/global.css";
@@ -40,9 +40,9 @@ const canonicalUrl = new URL("/", Astro.site);
         <span>{profile.label}</span>
       </a>
       <nav aria-label="On this page">
-        <a href="#thinking">Beliefs</a>
+        <a href="#thinking">Notes on a life</a>
         <a href="#contract">Working together</a>
-        <a href="#questions">About me</a>
+        <a href="#questions">Small things</a>
       </nav>
       <p class="edition">
         <span aria-hidden="true">Draft / </span><span class="visually-hidden">Draft edition </span>{profile.edition}
@@ -63,10 +63,10 @@ const canonicalUrl = new URL("/", Astro.site);
           </div>
 
           <aside class="operating-loop" aria-labelledby="operating-loop-title">
-            <p class="aside-label" id="operating-loop-title">The working loop</p>
+            <p class="aside-label" id="operating-loop-title">Things I return to</p>
             <ol role="list">
               {
-                systemLoop.map((step, index) => (
+                recurringThemes.map((step, index) => (
                   <li>
                     <span>{String(index + 1).padStart(2, "0")}</span>
                     <strong>{step}</strong>
@@ -75,7 +75,7 @@ const canonicalUrl = new URL("/", Astro.site);
               }
             </ol>
             <p class="loop-note">
-              Understand before acting. Act before analysis becomes avoidance.
+              Not a method. Just four things that keep appearing in different forms.
             </p>
           </aside>
         </header>
@@ -95,17 +95,17 @@ const canonicalUrl = new URL("/", Astro.site);
                 ))
               }
             </ol>
-            <p class="contents-note">Five beliefs. None is useful without judgment about when and how to apply it.</p>
+            <p class="contents-note">Six notes, loosely connected. Life first; work appears when it has something useful to add.</p>
           </aside>
 
           <div class="document">
             <section class="thinking" id="thinking" aria-labelledby="thinking-title">
               <header class="section-heading">
-                <p class="section-label">01 / Working beliefs</p>
+                <p class="section-label">01 / Notes on a life</p>
                 <div>
-                  <h2 id="thinking-title">What I try to build around</h2>
+                  <h2 id="thinking-title">What I keep coming back to</h2>
                   <p>
-                    Not rules, and certainly not complete: a description of the environment I try to create and the standards I hold myself to as well.
+                    Not rules, and not a finished philosophy. These are ideas that recur in how I live, learn, care, and make things with other people.
                   </p>
                 </div>
               </header>
@@ -143,10 +143,10 @@ const canonicalUrl = new URL("/", Astro.site);
 
             <section class="contract" id="contract" aria-labelledby="contract-title">
               <header class="section-heading">
-                <p class="section-label">02 / Working together</p>
+                <p class="section-label">02 / When we work together</p>
                 <div>
-                  <h2 id="contract-title">Trust should create freedom</h2>
-                  <p>Autonomy works when context, communication, judgment, and responsibility travel together.</p>
+                  <h2 id="contract-title">A few ways to make it easier</h2>
+                  <p>This is the practical bit: what I try to offer, and what helps me do my best work with other people.</p>
                 </div>
               </header>
 
@@ -170,16 +170,16 @@ const canonicalUrl = new URL("/", Astro.site);
 
             <section class="questions" id="questions" aria-labelledby="questions-title">
               <header class="section-heading">
-                <p class="section-label">03 / A few useful details</p>
+                <p class="section-label">03 / Small things</p>
                 <div>
-                  <h2 id="questions-title">The person in the system</h2>
+                  <h2 id="questions-title">Details that belong somewhere</h2>
                   <p>
-                    The ideas above make more sense with a little context about how I tend to think, care, and occasionally overdo things.
+                    A page like this should leave room for the parts that do not fit neatly into a principle or a job description.
                   </p>
                 </div>
               </header>
               <ol role="list">
-                {aboutMe.map((detail, index) => <li><span>{String(index + 1).padStart(2, "0")}</span>{detail}</li>)}
+                {smallThings.map((detail, index) => <li><span>{String(index + 1).padStart(2, "0")}</span>{detail}</li>)}
               </ol>
             </section>
           </div>

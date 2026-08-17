@@ -37,18 +37,22 @@ test("exposes the revised working README draft", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 1, name: "Nitai Perez" }),
   ).toBeVisible();
-  await expect(page.getByText("Build judgment, not dependence.")).toBeVisible();
+  await expect(
+    page.getByText(
+      "I want to understand the world well enough to be useful in it.",
+    ),
+  ).toBeVisible();
   await expect(page.getByRole("heading", { level: 2 })).toHaveCount(3);
-  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(5);
-  await expect(page.locator(".principle")).toHaveCount(5);
-  await expect(page.locator(".principle .prose-columns p")).toHaveCount(10);
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(6);
+  await expect(page.locator(".principle")).toHaveCount(6);
+  await expect(page.locator(".principle .prose-columns p")).toHaveCount(19);
   await expect(page.locator(".contract-row")).toHaveCount(5);
   await expect(page.locator(".questions li")).toHaveCount(6);
   await expect(
-    page.getByText("Think for yourself", { exact: true }),
+    page.getByText("Keep the important things at the centre", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText("Craft matters. People matter more.", { exact: true }),
+    page.getByText("Leave things better than you found them", { exact: true }),
   ).toBeVisible();
 });
 
@@ -79,7 +83,7 @@ test("uses supported semantics for the draft edition label", async ({
   await expect(expandedLabel).toHaveCSS("position", "absolute");
   await expect(expandedLabel).toHaveCSS("overflow", "hidden");
   await expect(expandedLabel).toHaveCSS("width", "1px");
-  await expect(edition).toContainText("0.4");
+  await expect(edition).toContainText("0.5");
 });
 
 test("keeps small utility text at AA contrast", async ({ page }) => {
@@ -273,11 +277,12 @@ for (const viewport of [
       ...(viewport.name === "narrow"
         ? []
         : [
-            "#think-for-yourself",
+            "#life-at-the-centre",
+            "#stay-curious",
+            "#care-is-practical",
             "#understand-the-problem",
-            "#leave-the-path-easier",
-            "#ownership-is-outcomes",
-            "#people-and-craft",
+            "#think-for-yourself",
+            "#leave-things-better",
           ]),
       "https://nit.ai",
       "https://cook.nit.ai",
@@ -297,9 +302,13 @@ for (const viewport of [
       await expect(focused).toHaveAttribute("href");
       // Browser focus scrolling can leave a 2px outline clipped at a viewport edge.
       // Center the focused link before measuring its complete focus affordance.
-      await focused.evaluate((element) =>
-        element.scrollIntoView({ block: "center", inline: "nearest" }),
-      );
+      await focused.evaluate((element) => {
+        const root = document.documentElement;
+        const previousBehavior = root.style.scrollBehavior;
+        root.style.scrollBehavior = "auto";
+        element.scrollIntoView({ block: "center", inline: "nearest" });
+        root.style.scrollBehavior = previousBehavior;
+      });
 
       const focusEvidence = await focused.evaluate((element) => {
         const parseRgb = (value: string) =>
