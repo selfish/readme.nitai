@@ -1,10 +1,10 @@
 # readme.nit.ai
 
-An approval-gated draft for a future public working README for Nitai Perez. The current page tests the design and information structure with three source-backed phrases; it does not yet describe Nitai’s values, practices, scope, or promises.
+An approval-gated draft for a future public working README for Nitai Perez. The current page preserves the approved visual direction from PR #3 while testing edited copy distilled from two owner-supplied working documents. Those documents are source material, not page copy; the draft intentionally selects, compresses, and reorganizes their themes.
 
 ## Status
 
-The first page is an approval-gated draft tracked in [issue #1](https://github.com/selfish/readme.nitai/issues/1). Copy, visible design, domain configuration, and publication are not approved merely because checks pass.
+The first page is an approval-gated draft tracked in [issue #1](https://github.com/selfish/readme.nitai/issues/1). It now includes first-person work beliefs and a small amount of personal context for local review. Copy, visible design, personal disclosure, domain configuration, and publication all require explicit owner approval; passing checks and the `noindex` directive are not publication or privacy controls. Do not deploy or push this revision to a public preview solely for review.
 
 ## Development
 

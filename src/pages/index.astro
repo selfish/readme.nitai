@@ -1,7 +1,7 @@
 ---
 import {
+  aboutMe,
   links,
-  openQuestions,
   principles,
   profile,
   systemLoop,
@@ -40,9 +40,9 @@ const canonicalUrl = new URL("/", Astro.site);
         <span>{profile.label}</span>
       </a>
       <nav aria-label="On this page">
-        <a href="#thinking">Starting points</a>
-        <a href="#contract">Contract questions</a>
-        <a href="#questions">Owner questions</a>
+        <a href="#thinking">Beliefs</a>
+        <a href="#contract">Working together</a>
+        <a href="#questions">About me</a>
       </nav>
       <p class="edition">
         <span aria-hidden="true">Draft / </span><span class="visually-hidden">Draft edition </span>{profile.edition}
@@ -63,7 +63,7 @@ const canonicalUrl = new URL("/", Astro.site);
           </div>
 
           <aside class="operating-loop" aria-labelledby="operating-loop-title">
-            <p class="aside-label" id="operating-loop-title">The approval path</p>
+            <p class="aside-label" id="operating-loop-title">The working loop</p>
             <ol role="list">
               {
                 systemLoop.map((step, index) => (
@@ -75,7 +75,7 @@ const canonicalUrl = new URL("/", Astro.site);
               }
             </ol>
             <p class="loop-note">
-              Source first. Approval second. Publication remains a separate decision.
+              Understand before acting. Act before analysis becomes avoidance.
             </p>
           </aside>
         </header>
@@ -95,17 +95,17 @@ const canonicalUrl = new URL("/", Astro.site);
                 ))
               }
             </ol>
-            <p class="contents-note">Three source-backed phrases. The explanations are questions, not Nitai’s claims.</p>
+            <p class="contents-note">Five beliefs. None is useful without judgment about when and how to apply it.</p>
           </aside>
 
           <div class="document">
             <section class="thinking" id="thinking" aria-labelledby="thinking-title">
               <header class="section-heading">
-                <p class="section-label">01 / Evidence</p>
+                <p class="section-label">01 / Working beliefs</p>
                 <div>
-                  <h2 id="thinking-title">Three starting points</h2>
+                  <h2 id="thinking-title">What I try to build around</h2>
                   <p>
-                    Public wording can establish the premise. Only Nitai’s answers can turn it into a working model.
+                    Not rules, and certainly not complete: a description of the environment I try to create and the standards I hold myself to as well.
                   </p>
                 </div>
               </header>
@@ -143,18 +143,18 @@ const canonicalUrl = new URL("/", Astro.site);
 
             <section class="contract" id="contract" aria-labelledby="contract-title">
               <header class="section-heading">
-                <p class="section-label">02 / Interface draft</p>
+                <p class="section-label">02 / Working together</p>
                 <div>
-                  <h2 id="contract-title">Questions, not a contract</h2>
-                  <p>This matrix tests the information architecture without inventing promises or expectations.</p>
+                  <h2 id="contract-title">Trust should create freedom</h2>
+                  <p>Autonomy works when context, communication, judgment, and responsibility travel together.</p>
                 </div>
               </header>
 
-              <div class="contract-grid" role="table" aria-label="Questions for a future working contract">
+              <div class="contract-grid" role="table" aria-label="Expectations for working together">
                 <div class="contract-header" role="row">
                   <span role="columnheader">Situation</span>
-                  <span role="columnheader">Questions for Nitai</span>
-                  <span role="columnheader">Questions for teammates</span>
+                  <span role="columnheader">What you can expect from me</span>
+                  <span role="columnheader">What I ask from you</span>
                 </div>
                 {
                   workingContract.map((item) => (
@@ -170,16 +170,16 @@ const canonicalUrl = new URL("/", Astro.site);
 
             <section class="questions" id="questions" aria-labelledby="questions-title">
               <header class="section-heading">
-                <p class="section-label">03 / Owner input</p>
+                <p class="section-label">03 / A few useful details</p>
                 <div>
-                  <h2 id="questions-title">What the real version must answer</h2>
+                  <h2 id="questions-title">The person in the system</h2>
                   <p>
-                    These are the factual gaps recorded in issue #1. They remain unanswered unless Nitai says otherwise.
+                    The ideas above make more sense with a little context about how I tend to think, care, and occasionally overdo things.
                   </p>
                 </div>
               </header>
               <ol role="list">
-                {openQuestions.map((question, index) => <li><span>{index + 1}</span>{question}</li>)}
+                {aboutMe.map((detail, index) => <li><span>{String(index + 1).padStart(2, "0")}</span>{detail}</li>)}
               </ol>
             </section>
           </div>
@@ -190,7 +190,7 @@ const canonicalUrl = new URL("/", Astro.site);
     <footer>
       <div>
         <p class="footer-title">README / {profile.name}</p>
-        <p class="footer-note">An unpublished discussion artifact—not Nitai’s working model until he approves it.</p>
+        <p class="footer-note">A working document, not a contract. Draft for discussion—not yet published.</p>
       </div>
       <nav aria-label="Elsewhere">
         {

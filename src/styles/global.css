@@ -718,11 +718,11 @@
     }
 
     .contract-row span:nth-child(2)::before {
-      content: "Questions for Nitai";
+      content: "What you can expect from me";
     }
 
     .contract-row span:nth-child(3)::before {
-      content: "Questions for teammates";
+      content: "What I ask from you";
     }
 
     footer {

@@ -31,44 +31,25 @@ const contrastRatio = (foreground: number[], background: number[]) => {
   return (lighter + 0.05) / (darker + 0.05);
 };
 
-test("exposes a source-bounded leadership and engineering draft", async ({
-  page,
-}) => {
+test("exposes the revised working README draft", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle("Unpublished draft — Nitai Perez README");
   await expect(
     page.getByRole("heading", { level: 1, name: "Nitai Perez" }),
   ).toBeVisible();
-  await expect(
-    page.getByText(
-      "I build engineering organizations that can think for themselves.",
-    ),
-  ).toBeVisible();
+  await expect(page.getByText("Build judgment, not dependence.")).toBeVisible();
   await expect(page.getByRole("heading", { level: 2 })).toHaveCount(3);
-  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(3);
-  await expect(page.locator(".principle")).toHaveCount(3);
-  await expect(page.locator(".principle .prose-columns p")).toHaveCount(6);
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(5);
+  await expect(page.locator(".principle")).toHaveCount(5);
+  await expect(page.locator(".principle .prose-columns p")).toHaveCount(10);
   await expect(page.locator(".contract-row")).toHaveCount(5);
-  await expect(page.locator(".questions li")).toHaveCount(8);
+  await expect(page.locator(".questions li")).toHaveCount(6);
   await expect(
-    page.getByText("Running a team of leaders", { exact: true }),
+    page.getByText("Think for yourself", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByText(
-      "Ownership is the architecture; the software ships as a side effect.",
-      { exact: true },
-    ),
+    page.getByText("Craft matters. People matter more.", { exact: true }),
   ).toBeVisible();
-
-  const body = await page.locator("body").innerText();
-  for (const unapprovedClaim of [
-    "I care about",
-    "I think ownership",
-    "I want risks",
-    "I prefer small",
-  ]) {
-    expect(body).not.toContain(unapprovedClaim);
-  }
 });
 
 test("preserves Georgia while retiring the generic initials mark", async ({
@@ -98,7 +79,7 @@ test("uses supported semantics for the draft edition label", async ({
   await expect(expandedLabel).toHaveCSS("position", "absolute");
   await expect(expandedLabel).toHaveCSS("overflow", "hidden");
   await expect(expandedLabel).toHaveCSS("width", "1px");
-  await expect(edition).toContainText("0.3");
+  await expect(edition).toContainText("0.4");
 });
 
 test("keeps small utility text at AA contrast", async ({ page }) => {
@@ -180,6 +161,7 @@ test("keeps proposed links reviewable without asserting identity approval", asyn
   await page.goto("/");
   const expectedLinks = [
     ["Personal site", "https://nit.ai"],
+    ["Cookbook", "https://cook.nit.ai"],
     ["GitHub", "https://github.com/selfish"],
     ["LinkedIn", "https://www.linkedin.com/in/nitaijperez"],
   ] as const;
@@ -241,13 +223,13 @@ test("keeps question-matrix column headers available on mobile", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   const contract = page.getByRole("table", {
-    name: "Questions for a future working contract",
+    name: "Expectations for working together",
   });
   await expect(contract.getByRole("columnheader")).toHaveCount(3);
   for (const heading of [
     "Situation",
-    "Questions for Nitai",
-    "Questions for teammates",
+    "What you can expect from me",
+    "What I ask from you",
   ]) {
     await expect(
       contract.getByRole("columnheader", { name: heading }),
@@ -263,8 +245,8 @@ test("keeps question-matrix column headers available on mobile", async ({
       ),
     );
   expect(visibleLabels).toEqual([
-    "Questions for Nitai",
-    "Questions for teammates",
+    "What you can expect from me",
+    "What I ask from you",
   ]);
 });
 
@@ -290,8 +272,15 @@ for (const viewport of [
       "#questions",
       ...(viewport.name === "narrow"
         ? []
-        : ["#thinking-organizations", "#leaders", "#ownership"]),
+        : [
+            "#think-for-yourself",
+            "#understand-the-problem",
+            "#leave-the-path-easier",
+            "#ownership-is-outcomes",
+            "#people-and-craft",
+          ]),
       "https://nit.ai",
+      "https://cook.nit.ai",
       "https://github.com/selfish",
       "https://www.linkedin.com/in/nitaijperez",
     ];
@@ -306,6 +295,11 @@ for (const viewport of [
       await expect(focused).toBeVisible();
       await expect(focused).toBeInViewport();
       await expect(focused).toHaveAttribute("href");
+      // Browser focus scrolling can leave a 2px outline clipped at a viewport edge.
+      // Center the focused link before measuring its complete focus affordance.
+      await focused.evaluate((element) =>
+        element.scrollIntoView({ block: "center", inline: "nearest" }),
+      );
 
       const focusEvidence = await focused.evaluate((element) => {
         const parseRgb = (value: string) =>
