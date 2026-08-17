@@ -1,0 +1,204 @@
+---
+import {
+  links,
+  principles,
+  profile,
+  recurringThemes,
+  smallThings,
+  workingContract,
+} from "../content";
+import "../styles/global.css";
+
+const title = "Unpublished draft — Nitai Perez README";
+const description =
+  "An unpublished, approval-gated design and copy draft for Nitai Perez’s working README.";
+const canonicalUrl = new URL("/", Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#f3efe6" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" aria-label="Page header">
+      <a class="identity" href="#top" aria-label="Nitai Perez — back to the top">
+        <span>{profile.name}</span>
+        <span>{profile.label}</span>
+      </a>
+      <nav aria-label="On this page">
+        <a href="#thinking">Notes on a life</a>
+        <a href="#contract">Working together</a>
+        <a href="#questions">Small things</a>
+      </nav>
+      <p class="edition">
+        <span aria-hidden="true">Draft / </span><span class="visually-hidden">Draft edition </span>{profile.edition}
+      </p>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <article id="top">
+        <header class="hero">
+          <div class="hero-copy">
+            <div class="hero-meta">
+              <p>{profile.label}</p>
+              <p class="draft-status">{profile.status}</p>
+            </div>
+            <h1>{profile.name}</h1>
+            <p class="thesis">{profile.thesis}</p>
+            <p class="introduction">{profile.introduction}</p>
+          </div>
+
+          <aside class="operating-loop" aria-labelledby="operating-loop-title">
+            <p class="aside-label" id="operating-loop-title">Things I return to</p>
+            <ol role="list">
+              {
+                recurringThemes.map((step, index) => (
+                  <li>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{step}</strong>
+                  </li>
+                ))
+              }
+            </ol>
+            <p class="loop-note">
+              Not a method. Just four things that keep appearing in different forms.
+            </p>
+          </aside>
+        </header>
+
+        <div class="reading-layout">
+          <aside class="contents" aria-label="Contents">
+            <p class="aside-label">Contents</p>
+            <ol role="list">
+              {
+                principles.map((principle, index) => (
+                  <li>
+                    <a href={`#${principle.id}`}>
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      {principle.title}
+                    </a>
+                  </li>
+                ))
+              }
+            </ol>
+            <p class="contents-note">Six notes, loosely connected. Life first; work appears when it has something useful to add.</p>
+          </aside>
+
+          <div class="document">
+            <section class="thinking" id="thinking" aria-labelledby="thinking-title">
+              <header class="section-heading">
+                <p class="section-label">01 / Notes on a life</p>
+                <div>
+                  <h2 id="thinking-title">What I keep coming back to</h2>
+                  <p>
+                    Not rules, and not a finished philosophy. These are ideas that recur in how I live, learn, care, and make things with other people.
+                  </p>
+                </div>
+              </header>
+
+              <div class="principles">
+                {
+                  principles.map((principle, index) => (
+                    <article class="principle" id={principle.id} aria-labelledby={`${principle.id}-title`}>
+                      <header>
+                        <p class="principle-index">{String(index + 1).padStart(2, "0")}</p>
+                        <div>
+                          <p class="kicker">{principle.kicker}</p>
+                          <h3 id={`${principle.id}-title`}>{principle.title}</h3>
+                        </div>
+                      </header>
+                      <div class="principle-copy">
+                        <p class="lede">{principle.lede}</p>
+                        <div class="prose-columns">
+                          {principle.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+                        </div>
+                        <dl class="notes">
+                          {principle.notes.map((note) => (
+                            <div>
+                              <dt>{note.label}</dt>
+                              <dd>{note.detail}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </div>
+                    </article>
+                  ))
+                }
+              </div>
+            </section>
+
+            <section class="contract" id="contract" aria-labelledby="contract-title">
+              <header class="section-heading">
+                <p class="section-label">02 / When we work together</p>
+                <div>
+                  <h2 id="contract-title">A few ways to make it easier</h2>
+                  <p>This is the practical bit: what I try to offer, and what helps me do my best work with other people.</p>
+                </div>
+              </header>
+
+              <div class="contract-grid" role="table" aria-label="Expectations for working together">
+                <div class="contract-header" role="row">
+                  <span role="columnheader">Situation</span>
+                  <span role="columnheader">What you can expect from me</span>
+                  <span role="columnheader">What I ask from you</span>
+                </div>
+                {
+                  workingContract.map((item) => (
+                    <div class="contract-row" role="row">
+                      <strong role="cell">{item.situation}</strong>
+                      <span role="cell">{item.fromMe}</span>
+                      <span role="cell">{item.fromYou}</span>
+                    </div>
+                  ))
+                }
+              </div>
+            </section>
+
+            <section class="questions" id="questions" aria-labelledby="questions-title">
+              <header class="section-heading">
+                <p class="section-label">03 / Small things</p>
+                <div>
+                  <h2 id="questions-title">Details that belong somewhere</h2>
+                  <p>
+                    A page like this should leave room for the parts that do not fit neatly into a principle or a job description.
+                  </p>
+                </div>
+              </header>
+              <ol role="list">
+                {smallThings.map((detail, index) => <li><span>{String(index + 1).padStart(2, "0")}</span>{detail}</li>)}
+              </ol>
+            </section>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <div>
+        <p class="footer-title">README / {profile.name}</p>
+        <p class="footer-note">A working document, not a contract. Draft for discussion—not yet published.</p>
+      </div>
+      <nav aria-label="Elsewhere">
+        {
+          links.map((link) => (
+            <a href={link.href} rel="noreferrer">{link.label}<span class="external" aria-hidden="true">↗</span></a>
+          ))
+        }
+      </nav>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Context and feedback loop</title>
+  <rect width="64" height="64" rx="12" fill="#191915"/>
+  <path d="M17 20h28v17" fill="none" stroke="#f3efe6" stroke-width="6" stroke-linecap="square"/>
+  <path d="m39 31 6 6 6-6" fill="none" stroke="#f3efe6" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/>
+  <path d="M47 44H19V27" fill="none" stroke="#b75c4d" stroke-width="6" stroke-linecap="square"/>
+  <path d="m25 33-6-6-6 6" fill="none" stroke="#b75c4d" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>

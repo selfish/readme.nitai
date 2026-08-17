@@ -1,0 +1,414 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "@playwright/test";
+
+const viewports = [
+  { name: "narrow", width: 320, height: 568 },
+  { name: "mobile", width: 390, height: 844 },
+  { name: "tablet", width: 768, height: 900 },
+  { name: "desktop", width: 1440, height: 1000 },
+];
+
+const relativeLuminance = ([red, green, blue]: number[]) => {
+  const channels = [red, green, blue].map((channel) => {
+    const value = channel / 255;
+    return value <= 0.04045
+      ? value / 12.92
+      : Math.pow((value + 0.055) / 1.055, 2.4);
+  });
+
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+};
+
+const contrastRatio = (foreground: number[], background: number[]) => {
+  const lighter = Math.max(
+    relativeLuminance(foreground),
+    relativeLuminance(background),
+  );
+  const darker = Math.min(
+    relativeLuminance(foreground),
+    relativeLuminance(background),
+  );
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
+test("exposes the revised working README draft", async ({ page }) => {
+  await page.goto("/");
+  await expect(page).toHaveTitle("Unpublished draft — Nitai Perez README");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Nitai Perez" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "I want to understand the world well enough to be useful in it.",
+    ),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2 })).toHaveCount(3);
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(6);
+  await expect(page.locator(".principle")).toHaveCount(6);
+  await expect(page.locator(".principle .prose-columns p")).toHaveCount(19);
+  await expect(page.locator(".contract-row")).toHaveCount(5);
+  await expect(page.locator(".questions li")).toHaveCount(6);
+  await expect(
+    page.getByText("Keep the important things at the centre", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Leave things better than you found them", { exact: true }),
+  ).toBeVisible();
+});
+
+test("preserves Georgia while retiring the generic initials mark", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator(".wordmark")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: "Nitai Perez — back to the top" }),
+  ).toContainText("Nitai Perez");
+  const thesisFont = await page
+    .locator(".thesis")
+    .evaluate((element) => getComputedStyle(element).fontFamily);
+  expect(thesisFont).toContain("Georgia");
+});
+
+test("uses supported semantics for the draft edition label", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const edition = page.locator(".edition");
+  const visualLabel = edition.locator('span[aria-hidden="true"]');
+  const expandedLabel = edition.locator(".visually-hidden");
+  await expect(edition).not.toHaveAttribute("aria-label");
+  await expect(visualLabel).toHaveText("Draft / ");
+  await expect(expandedLabel).toHaveText("Draft edition ");
+  await expect(expandedLabel).toHaveCSS("position", "absolute");
+  await expect(expandedLabel).toHaveCSS("overflow", "hidden");
+  await expect(expandedLabel).toHaveCSS("width", "1px");
+  await expect(edition).toContainText("0.5");
+});
+
+test("keeps small utility text at AA contrast", async ({ page }) => {
+  await page.goto("/");
+  const colors = await page.locator(".edition").evaluate((element) => {
+    const parseRgb = (value: string) =>
+      value.startsWith("#")
+        ? [...value.slice(1).matchAll(/.{2}/g)].map(([hex]) =>
+            Number.parseInt(hex, 16),
+          )
+        : value.match(/\d+/g)!.slice(0, 3).map(Number);
+    const style = getComputedStyle(element);
+    const root = getComputedStyle(document.documentElement);
+    return {
+      foreground: parseRgb(style.color),
+      backgrounds: [
+        parseRgb(root.getPropertyValue("--paper").trim()),
+        parseRgb(root.getPropertyValue("--paper-grid").trim()),
+      ],
+    };
+  });
+
+  for (const background of colors.backgrounds) {
+    expect(contrastRatio(colors.foreground, background)).toBeGreaterThanOrEqual(
+      4.5,
+    );
+  }
+});
+
+test("uses a materially denser desktop opening", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/");
+  const geometry = await page.evaluate(() => {
+    const hero = document.querySelector<HTMLElement>(".hero")!;
+    const thinking = document.querySelector<HTMLElement>("#thinking")!;
+    const heroRect = hero.getBoundingClientRect();
+    const thinkingRect = thinking.getBoundingClientRect();
+    return {
+      heroHeight: heroRect.height,
+      heroBottom: heroRect.bottom,
+      thinkingTop: thinkingRect.top,
+    };
+  });
+  expect(geometry.heroHeight).toBeLessThan(760);
+  expect(geometry.heroBottom).toBeLessThan(900);
+  expect(geometry.thinkingTop).toBeLessThan(900);
+});
+
+test("keeps the unapproved draft out of search indexes", async ({ page }) => {
+  await page.goto("/");
+  await expect(
+    page.getByText("Draft for discussion — not published"),
+  ).toBeVisible();
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    "content",
+    "noindex, nofollow",
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://readme.nit.ai/",
+  );
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+    "content",
+    "https://readme.nit.ai/",
+  );
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    "content",
+    "Unpublished draft — Nitai Perez README",
+  );
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    /unpublished, approval-gated design and copy draft/i,
+  );
+});
+
+test("keeps proposed links reviewable without asserting identity approval", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const expectedLinks = [
+    ["Personal site", "https://nit.ai"],
+    ["Cookbook", "https://cook.nit.ai"],
+    ["GitHub", "https://github.com/selfish"],
+    ["LinkedIn", "https://www.linkedin.com/in/nitaijperez"],
+  ] as const;
+
+  for (const [label, href] of expectedLinks) {
+    const link = page.getByRole("link", { name: label });
+    await expect(link).toHaveAttribute("href", href);
+    await expect(link).toHaveAttribute("rel", "noreferrer");
+  }
+});
+
+test("preserves ordered-list semantics after removing visual markers", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByRole("list")).toHaveCount(3);
+  await expect(page.locator('ol[role="list"]')).toHaveCount(3);
+});
+
+for (const viewport of viewports) {
+  test(`has no overflow or detectable accessibility violations at ${viewport.name}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height,
+    });
+    await page.goto("/");
+    const dimensions = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.scrollWidth).toBe(dimensions.clientWidth);
+
+    const accessibility = await new AxeBuilder({ page }).analyze();
+    expect(accessibility.violations).toEqual([]);
+  });
+
+  test(`captures the ${viewport.name} review surface`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height,
+    });
+    await page.goto("/");
+    const screenshotPath = testInfo.outputPath(`readme-${viewport.name}.png`);
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+    await testInfo.attach(`readme-${viewport.name}`, {
+      path: screenshotPath,
+      contentType: "image/png",
+    });
+  });
+}
+
+test("keeps question-matrix column headers available on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const contract = page.getByRole("table", {
+    name: "Expectations for working together",
+  });
+  await expect(contract.getByRole("columnheader")).toHaveCount(3);
+  for (const heading of [
+    "Situation",
+    "What you can expect from me",
+    "What I ask from you",
+  ]) {
+    await expect(
+      contract.getByRole("columnheader", { name: heading }),
+    ).toHaveCount(1);
+  }
+
+  const visibleLabels = await page
+    .locator(".contract-row")
+    .first()
+    .evaluate((row) =>
+      [...row.querySelectorAll("span")].map((cell) =>
+        getComputedStyle(cell, "::before").content.replaceAll('"', ""),
+      ),
+    );
+  expect(visibleLabels).toEqual([
+    "What you can expect from me",
+    "What I ask from you",
+  ]);
+});
+
+for (const viewport of [
+  { name: "narrow", width: 320, height: 568 },
+  { name: "tablet", width: 768, height: 900 },
+  { name: "desktop", width: 1440, height: 1000 },
+]) {
+  test(`keeps every ${viewport.name} link in the tab order with visible focus`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({
+      width: viewport.width,
+      height: viewport.height,
+    });
+    await page.goto("/");
+
+    const expectedTargets = [
+      "#main",
+      "#top",
+      "#thinking",
+      "#contract",
+      "#questions",
+      ...(viewport.name === "narrow"
+        ? []
+        : [
+            "#life-at-the-centre",
+            "#stay-curious",
+            "#care-is-practical",
+            "#understand-the-problem",
+            "#think-for-yourself",
+            "#leave-things-better",
+          ]),
+      "https://nit.ai",
+      "https://cook.nit.ai",
+      "https://github.com/selfish",
+      "https://www.linkedin.com/in/nitaijperez",
+    ];
+    const expectedHrefs = expectedTargets.map(
+      (target) => new URL(target, page.url()).href,
+    );
+    const focusedHrefs = [];
+
+    for (const expectedHref of expectedHrefs) {
+      await page.keyboard.press("Tab");
+      const focused = page.locator(":focus");
+      await expect(focused).toBeVisible();
+      await expect(focused).toBeInViewport();
+      await expect(focused).toHaveAttribute("href");
+      // Browser focus scrolling can leave a 2px outline clipped at a viewport edge.
+      // Center the focused link before measuring its complete focus affordance.
+      await focused.evaluate((element) => {
+        const root = document.documentElement;
+        const previousBehavior = root.style.scrollBehavior;
+        root.style.scrollBehavior = "auto";
+        element.scrollIntoView({ block: "center", inline: "nearest" });
+        root.style.scrollBehavior = previousBehavior;
+      });
+
+      const focusEvidence = await focused.evaluate((element) => {
+        const parseRgb = (value: string) =>
+          value.startsWith("#")
+            ? [...value.slice(1).matchAll(/.{2}/g)].map(([hex]) =>
+                Number.parseInt(hex, 16),
+              )
+            : value.match(/\d+/g)!.slice(0, 3).map(Number);
+        const parseColor = (value: string) => {
+          const channels = value.match(/[\d.]+/g)!.map(Number);
+          return {
+            alpha: value.startsWith("rgba") ? channels[3] : 1,
+            rgb: channels.slice(0, 3),
+          };
+        };
+        const style = getComputedStyle(element);
+        const root = getComputedStyle(document.documentElement);
+        const rectangle = element.getBoundingClientRect();
+        const outlineColor = parseColor(style.outlineColor);
+        let effectiveOpacity = 1;
+        for (
+          let ancestor: Element | null = element;
+          ancestor;
+          ancestor = ancestor.parentElement
+        ) {
+          effectiveOpacity *= Number.parseFloat(
+            getComputedStyle(ancestor).opacity,
+          );
+        }
+        return {
+          backgrounds: [
+            parseRgb(root.getPropertyValue("--paper").trim()),
+            parseRgb(root.getPropertyValue("--paper-grid").trim()),
+          ],
+          effectiveOpacity,
+          href: (element as HTMLAnchorElement).href,
+          outlineAlpha: outlineColor.alpha,
+          outlineColor: outlineColor.rgb,
+          outlineOffset: Number.parseFloat(style.outlineOffset),
+          outlineStyle: style.outlineStyle,
+          outlineWidth: Number.parseFloat(style.outlineWidth),
+          rectangle: {
+            bottom: rectangle.bottom,
+            left: rectangle.left,
+            right: rectangle.right,
+            top: rectangle.top,
+          },
+          viewport: {
+            height: window.innerHeight,
+            width: window.innerWidth,
+          },
+        };
+      });
+
+      expect(focusEvidence.href).toBe(expectedHref);
+      expect(focusEvidence.outlineStyle).not.toBe("none");
+      expect(focusEvidence.outlineWidth).toBeGreaterThanOrEqual(2);
+      expect(focusEvidence.outlineAlpha).toBe(1);
+      expect(focusEvidence.effectiveOpacity).toBe(1);
+      for (const background of focusEvidence.backgrounds) {
+        expect(
+          contrastRatio(focusEvidence.outlineColor, background),
+        ).toBeGreaterThanOrEqual(3);
+      }
+
+      const outlineExtent = Math.max(
+        0,
+        focusEvidence.outlineWidth + focusEvidence.outlineOffset,
+      );
+      expect(
+        focusEvidence.rectangle.left - outlineExtent,
+      ).toBeGreaterThanOrEqual(0);
+      expect(focusEvidence.rectangle.right + outlineExtent).toBeLessThanOrEqual(
+        focusEvidence.viewport.width,
+      );
+      expect(
+        focusEvidence.rectangle.top - outlineExtent,
+      ).toBeGreaterThanOrEqual(0);
+      expect(
+        focusEvidence.rectangle.bottom + outlineExtent,
+      ).toBeLessThanOrEqual(focusEvidence.viewport.height);
+      focusedHrefs.push(focusEvidence.href);
+    }
+
+    expect(focusedHrefs).toEqual(expectedHrefs);
+  });
+}
+
+test("supports skip-link navigation and reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("link", { name: "Skip to content" }),
+  ).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("main")).toBeFocused();
+  await expect(page).toHaveURL(/#main$/);
+  const behavior = await page.evaluate(
+    () => getComputedStyle(document.documentElement).scrollBehavior,
+  );
+  expect(behavior).toBe("auto");
+});

@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      REVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Check out reviewed commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.REVIEW_SHA }}
+
+      - name: Verify checked-out commit
+        run: test "$(git rev-parse HEAD)" = "$REVIEW_SHA"
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Audit locked dependencies
+        run: npm audit --audit-level=low
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Install review browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser, accessibility, and responsive checks
+        run: npm test
+
+      - name: Reverify reviewed source tree
+        run: |
+          test "$(git rev-parse HEAD)" = "$REVIEW_SHA"
+          test -z "$(git status --short --untracked-files=no)"
+
+      - name: Record exact reviewed commit
+        run: printf 'commit=%s\n' "$(git rev-parse HEAD)" > dist/reviewed-commit.txt
+
+      - name: Upload exact-head site and screenshots
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: readme-nit-ai-${{ env.REVIEW_SHA }}
+          path: |
+            dist/
+            test-results/
+          if-no-files-found: error
+          retention-days: 14
